@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>vc</title>
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+
+<div class="room">
+  <header class="bar">
+    <div class="title"><span class="lock">&#128274;</span> Room <span id="roomCode" class="chip mono">…</span></div>
+    <span id="expiry" class="chip">…</span>
+    <button id="ttlBtn" hidden>Expiry</button>
+    <button id="inviteBtn">Invite</button>
+  </header>
+
+  <main class="body">
+    <aside class="roster">
+      <h2>In the room (<span id="count">1</span>)</h2>
+      <div id="peers"></div>
+    </aside>
+
+    <section class="chat">
+      <div class="log" id="log"></div>
+      <form class="composer" id="composer">
+        <input id="input" placeholder="Message…" autocomplete="off" maxlength="4000" disabled>
+        <button class="primary" id="send" disabled>Send</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="callbar">
+    <span class="status" id="callStatus">Not in the call</span>
+    <button id="muteBtn" hidden>Mute</button>
+    <button id="callBtn" class="primary">Join call</button>
+  </footer>
+</div>
+
+<div id="audioSinks" style="display:none"></div>
+
+<!-- Nickname gate ------------------------------------------------------- -->
+<div class="overlay" id="nickGate" hidden>
+  <div class="modal">
+    <h2>Pick a nickname</h2>
+    <p>Only the people in this room will see it — it's encrypted before it leaves your device. Skip and you'll get an animal.</p>
+    <form id="nickForm">
+      <input id="nickInput" placeholder="e.g. Sam" maxlength="24" autocomplete="off">
+      <div class="row">
+        <button type="button" id="skipNick">Skip</button>
+        <button type="submit" class="primary">Join room</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Invite -------------------------------------------------------------- -->
+<div class="overlay" id="inviteGate" hidden>
+  <div class="modal">
+    <h2>Invite</h2>
+    <p>Anyone with this link can join and read the room, so send it over a channel you trust. The part after the <span class="mono">#</span> is the key.</p>
+    <div class="linkbox">
+      <input id="inviteLink" readonly>
+      <button id="copyLink" class="primary">Copy</button>
+    </div>
+    <p style="margin-top:18px">Room code <span class="mono" id="inviteCode"></span> — read it aloud to confirm everyone opened the same link.</p>
+    <div class="row"><button type="button" id="closeInvite">Done</button></div>
+  </div>
+</div>
+
+<!-- Expiry (host only) --------------------------------------------------- -->
+<div class="overlay" id="ttlGate" hidden>
+  <div class="modal">
+    <h2>How long should this room stay open?</h2>
+    <p>Counted from the last message, call, or join. The room and everything in it is destroyed when it expires.</p>
+    <select id="ttlSelect">
+      <option value="5">5 minutes of inactivity</option>
+      <option value="15">15 minutes</option>
+      <option value="30">30 minutes</option>
+      <option value="60">1 hour</option>
+      <option value="180">3 hours</option>
+      <option value="480">8 hours</option>
+      <option value="1440">24 hours</option>
+    </select>
+    <div class="row">
+      <button type="button" id="cancelTtl">Cancel</button>
+      <button type="button" class="primary" id="saveTtl">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Terminal state ------------------------------------------------------- -->
+<div class="overlay" id="deadGate" hidden>
+  <div class="modal">
+    <h2 id="deadTitle">Room expired</h2>
+    <p id="deadBody">It's gone, along with everything in it. That's the point.</p>
+    <div class="row"><button type="button" class="primary" id="newRoom">Create a new room</button></div>
+  </div>
+</div>
+
+<script type="module" src="/js/room.js"></script>
+</body>
+</html>

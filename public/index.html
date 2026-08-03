@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>vc — encrypted rooms, no sign-up</title>
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div class="landing">
+  <h1>Create a room</h1>
+  <p class="sub">Share the link. They tap it and they're in — no account, no app.
+     Messages and audio are end-to-end encrypted with a key that never leaves the link.</p>
+
+  <div class="card">
+    <div class="field">
+      <label for="ttl">Stay open after the last activity for</label>
+      <select id="ttl">
+        <option value="5">5 minutes</option>
+        <option value="15">15 minutes</option>
+        <option value="30" selected>30 minutes</option>
+        <option value="60">1 hour</option>
+        <option value="180">3 hours</option>
+        <option value="480">8 hours</option>
+        <option value="1440">24 hours</option>
+      </select>
+    </div>
+    <button id="create" class="primary" style="width:100%">Create room</button>
+    <p id="err" class="muted" style="margin:12px 0 0;font-size:13px"></p>
+  </div>
+
+  <ul class="notes">
+    <li>The room key is generated in your browser and lives after the <span class="mono">#</span> in the link — browsers never send that part to a server.</li>
+    <li>The server relays ciphertext. It cannot read your messages, hear your call, or see nicknames.</li>
+    <li>Nothing is stored. The room disappears when it expires, and so does its history.</li>
+    <li>You can change the expiry any time while you're in the room.</li>
+  </ul>
+</div>
+
+<script type="module" src="/js/home.js"></script>
+</body>
+</html>

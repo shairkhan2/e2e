@@ -1,0 +1,26 @@
+{
+  "name": "e2e-vc",
+  "version": "1.0.0",
+  "description": "Ephemeral end-to-end encrypted rooms: link-only join, chat and audio calls, no sign-up.",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/e2e.test.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://local_proxy@127.0.0.1:41729/git/shairkhan2/e2e"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ws": "^8.21.1"
+  },
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
+}
