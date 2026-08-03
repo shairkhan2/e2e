@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#18202a"/>
+      <stop offset="1" stop-color="#0b0f13"/>
+    </linearGradient>
+    <linearGradient id="mint" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6fe0ab"/>
+      <stop offset="1" stop-color="#35b47c"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!-- speech bubble with a keyhole punched out (even-odd) -->
+  <path fill="url(#mint)" fill-rule="evenodd" d="
+    M160 104 h192 a72 72 0 0 1 72 72 v136 a72 72 0 0 1 -72 72 h-92
+    l-84 66 a10 10 0 0 1 -16 -8 v-58 h-0.5
+    a72 72 0 0 1 -71.5 -72 v-136 a72 72 0 0 1 72 -72 z
+    M256 158 a46 46 0 0 0 -26 84 l-16 74 a10 10 0 0 0 10 12 h64
+    a10 10 0 0 0 10 -12 l-16 -74 a46 46 0 0 0 -26 -84 z"/>
+</svg>

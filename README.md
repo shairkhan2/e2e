@@ -17,6 +17,47 @@ npm test           # two real browsers in one room
 `PORT` overrides the listen port. There is no database, no config file, and no
 state on disk — rooms live in memory and die with the process.
 
+## On a phone
+
+It's built phone-first and installs as a PWA — "Add to home screen" gives it an
+icon, a splash screen, and no browser chrome. The service worker precaches the
+shell, so it opens instantly and still renders on a dead connection (rooms
+themselves are live, and never cached).
+
+Details that matter on a handset:
+
+- Layout is driven by `100dvh` and `env(safe-area-inset-*)`, so it sits
+  correctly under a notch and above a home indicator.
+- The composer is `16px`, which is the threshold below which iOS zooms the
+  viewport on focus. `interactive-widget=resizes-content` keeps the input above
+  the on-screen keyboard instead of behind it.
+- Every control is at least 40px tall, and the two you reach for mid-call —
+  call and send — are thumb-sized circles at the bottom corners.
+- Dialogs are bottom sheets on a phone and centred panels on a desktop, from
+  the same markup.
+- A wake lock holds the screen on during a call, and is re-taken when you come
+  back to the tab.
+- Long links, long words, and 300-character messages are all pinned inside the
+  viewport; a horizontal scrollbar is a test failure.
+
+## The interface
+
+Text was the thing to cut. The landing page is a mark, one line, three chips,
+a lifetime picker, and a button — the explanation is folded into a disclosure
+for people who want it. In the room, chrome gives way to content:
+
+- **People are avatars, not a list.** Initials on a colour derived from the
+  peer id, in a rail that scrolls sideways on a phone and becomes a sidebar on
+  a desktop. Badges show who is on the call and who is muted.
+- **A ring shows who is talking.** Measured locally with a `AnalyserNode` on
+  each decrypted stream, with hysteresis and a short hold so it tracks speech
+  rather than flickering on every syllable. Nothing about it is transmitted.
+- **Runs of messages collapse.** One name label per run, not per bubble.
+- **The call surfaces only while it exists** — a strip appears above the
+  composer with the participant count, elapsed time, mute, and leave.
+- **Security is one tap, not a paragraph.** The header lock shows the room
+  code and everyone's key fingerprint.
+
 ## How the encryption works
 
 **The key lives in the link.** Creating a room generates 32 random bytes in the
@@ -115,12 +156,20 @@ Not protected:
 ## Layout
 
 ```
-server.js              relay + room lifecycle; sees only ciphertext
-public/index.html      create a room
-public/room.html       the room shell
-public/js/crypto.js    HKDF, AES-GCM sealing, ECDSA signing, replay defence
-public/js/rtc.js       WebRTC audio mesh, perfect negotiation
-public/js/room.js      presence, chat, call, expiry
-public/js/names.js     nickname normalisation and animal names
-test/e2e.test.mjs      two browsers, one room
+server.js                    relay + room lifecycle; sees only ciphertext
+public/index.html            create a room
+public/room.html             the room shell
+public/app.css               mobile-first styling, one desktop breakpoint
+public/manifest.webmanifest  PWA install metadata
+public/sw.js                 app-shell cache; never touches /api or /ws
+public/icons/                app icon, and the SVG it is generated from
+public/js/crypto.js          HKDF, AES-GCM sealing, ECDSA signing, replay defence
+public/js/rtc.js             WebRTC audio mesh, perfect negotiation
+public/js/room.js            presence, chat, call, expiry
+public/js/levels.js          local speaking detection
+public/js/ui.js              sheets, avatars, install prompt, wake lock
+public/js/names.js           nickname normalisation and animal names
+test/e2e.test.mjs            two browsers, one room
+test/shot.mjs                drives a room and screenshots it
+tools/make-icons.mjs         rasterises the icon after editing mark.svg
 ```

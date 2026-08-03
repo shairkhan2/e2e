@@ -1,29 +1,39 @@
 import { newRoomSecret, toB64Url } from '/js/crypto.js';
+import { $, registerServiceWorker, setupInstall, segmented, formatTtl } from '/js/ui.js';
 
-const btn = document.getElementById('create');
-const err = document.getElementById('err');
+registerServiceWorker();
+setupInstall($('install'));
 
-btn.addEventListener('click', async () => {
+let ttlMinutes = 30;
+
+segmented($('ttlPicker'), 'ttl', (value) => {
+  ttlMinutes = value;
+  $('ttlLabel').textContent = formatTtl(value);
+});
+
+$('create').addEventListener('click', async () => {
+  const btn = $('create');
   btn.disabled = true;
-  err.textContent = '';
+  btn.textContent = 'Creating…';
+  $('err').textContent = '';
+
   try {
-    const ttlMinutes = Number(document.getElementById('ttl').value);
     const res = await fetch('/api/rooms', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ ttlMinutes }),
     });
-    if (!res.ok) throw new Error((await res.json()).error || 'could not create room');
+    if (!res.ok) throw new Error((await res.json()).error || 'Could not create the room');
     const { roomId, hostToken } = await res.json();
 
     // The host token proves to the server that we may change the expiry. It
-    // is scoped to this tab and is never part of the shareable link.
+    // stays in this tab and is never part of the shareable link.
     sessionStorage.setItem(`host:${roomId}`, hostToken);
 
-    const secret = toB64Url(newRoomSecret());
-    location.href = `/r/${roomId}#${secret}`;
-  } catch (e) {
-    err.textContent = e.message;
+    location.href = `/r/${roomId}#${toB64Url(newRoomSecret())}`;
+  } catch (err) {
+    $('err').textContent = err.message;
     btn.disabled = false;
+    btn.textContent = 'Create room';
   }
 });

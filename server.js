@@ -116,7 +116,9 @@ const MIME = {
   '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.svg': 'image/svg+xml',
+  '.png': 'image/png',
   '.ico': 'image/x-icon',
+  '.json': 'application/json; charset=utf-8',
   '.webmanifest': 'application/manifest+json',
 };
 
@@ -176,7 +178,9 @@ function serveStatic(req, res, urlPath) {
       'cache-control': 'no-cache',
       // The app is fully self-contained; no external origins are needed.
       'content-security-policy':
-        "default-src 'self'; connect-src 'self' ws: wss:; media-src 'self' blob:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+        "default-src 'self'; connect-src 'self' ws: wss:; media-src 'self' blob:; " +
+        "img-src 'self' data:; manifest-src 'self'; worker-src 'self'; " +
+        "base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
       'referrer-policy': 'no-referrer',
       'x-content-type-options': 'nosniff',
     });

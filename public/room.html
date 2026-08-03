@@ -2,101 +2,166 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#0b0f13">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="vc">
 <title>vc</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="/app.css">
 </head>
 <body>
 
-<div class="room">
-  <header class="bar">
-    <div class="title"><span class="lock">&#128274;</span> Room <span id="roomCode" class="chip mono">…</span></div>
-    <span id="expiry" class="chip">…</span>
-    <button id="ttlBtn" hidden>Expiry</button>
-    <button id="inviteBtn">Invite</button>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v12m0-12L8 7m4-4l4 4M5 13v6a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-6"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="18.5" r="1.4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5z"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></symbol>
+  <symbol id="i-mic-off" viewBox="0 0 24 24"><path d="M9 5.5A3 3 0 0 1 15 6v5M9 9.5V11a3 3 0 0 0 4.6 2.5"/><path d="M5.5 11.5a6.5 6.5 0 0 0 9.7 5.6M18.5 11.5v0M12 18v3"/><path d="M4 3l16 18"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M4.5 12L20 4.5 15.5 20l-4-6.5z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 6.5A2.5 2.5 0 0 0 12.5 4h-7A1.5 1.5 0 0 0 4 5.5v7A2.5 2.5 0 0 0 6.5 15"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="8" r="4.5"/><path d="M11.2 11.2L20 20m-3-3l2-2m-4 4l1.5-1.5"/></symbol>
+  <symbol id="i-exit" viewBox="0 0 24 24"><path d="M14 7V5a1.5 1.5 0 0 0-1.5-1.5h-7A1.5 1.5 0 0 0 4 5v14a1.5 1.5 0 0 0 1.5 1.5h7A1.5 1.5 0 0 0 14 19v-2M9.5 12H21m0 0l-3.5-3.5M21 12l-3.5 3.5"/></symbol>
+</defs></svg>
+
+<div class="app">
+  <header class="topbar">
+    <button class="shield" id="securityBtn" aria-label="Encryption details">
+      <svg><use href="#i-lock"/></svg> <span id="roomCode" class="mono">…</span>
+    </button>
+    <div class="who">
+      <b>Room</b>
+      <span><span id="count">1</span> here · <span class="timer" id="timer">—</span></span>
+    </div>
+    <button class="icon-btn" id="inviteBtn" aria-label="Invite"><svg><use href="#i-share"/></svg></button>
+    <button class="icon-btn" id="menuBtn" aria-label="Room options"><svg><use href="#i-more"/></svg></button>
   </header>
 
-  <main class="body">
-    <aside class="roster">
-      <h2>In the room (<span id="count">1</span>)</h2>
-      <div id="peers"></div>
-    </aside>
+  <div class="rail" id="peers"></div>
 
-    <section class="chat">
-      <div class="log" id="log"></div>
-      <form class="composer" id="composer">
-        <input id="input" placeholder="Message…" autocomplete="off" maxlength="4000" disabled>
-        <button class="primary" id="send" disabled>Send</button>
-      </form>
-    </section>
-  </main>
+  <div class="log" id="log"></div>
 
-  <footer class="callbar">
-    <span class="status" id="callStatus">Not in the call</span>
-    <button id="muteBtn" hidden>Mute</button>
-    <button id="callBtn" class="primary">Join call</button>
-  </footer>
+  <div class="dock">
+    <div class="callstrip" id="callStrip" data-state="idle">
+      <span class="pulse"></span>
+      <span class="label" id="callStatus">Connecting…</span>
+      <span class="elapsed" id="callElapsed">0:00</span>
+      <button id="muteBtn" class="btn-ghost">Mute</button>
+      <button id="leaveBtn" class="btn-danger">Leave</button>
+    </div>
+
+    <div class="composer">
+      <button id="callBtn" class="round call" data-active="false" aria-label="Start call"><svg><use href="#i-phone"/></svg></button>
+      <textarea id="input" rows="1" placeholder="Message" maxlength="4000" enterkeyhint="send" disabled></textarea>
+      <button id="send" class="round send" disabled aria-label="Send"><svg><use href="#i-send"/></svg></button>
+    </div>
+  </div>
 </div>
 
 <div id="audioSinks" style="display:none"></div>
 
-<!-- Nickname gate ------------------------------------------------------- -->
-<div class="overlay" id="nickGate" hidden>
-  <div class="modal">
-    <h2>Pick a nickname</h2>
-    <p>Only the people in this room will see it — it's encrypted before it leaves your device. Skip and you'll get an animal.</p>
+<!-- nickname ------------------------------------------------------------ -->
+<div class="scrim" id="nickGate" hidden>
+  <div class="sheet">
+    <div class="grip"></div>
+    <h2>What should we call you?</h2>
+    <p>Only people in this room see it.</p>
     <form id="nickForm">
-      <input id="nickInput" placeholder="e.g. Sam" maxlength="24" autocomplete="off">
-      <div class="row">
-        <button type="button" id="skipNick">Skip</button>
-        <button type="submit" class="primary">Join room</button>
+      <input type="text" id="nickInput" placeholder="Your name" maxlength="24" autocomplete="off" enterkeyhint="go">
+      <div class="actions">
+        <button type="button" id="skipNick">Surprise me</button>
+        <button type="submit" class="btn-primary">Join</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- Invite -------------------------------------------------------------- -->
-<div class="overlay" id="inviteGate" hidden>
-  <div class="modal">
+<!-- invite -------------------------------------------------------------- -->
+<div class="scrim" id="inviteGate" hidden>
+  <div class="sheet">
+    <div class="grip"></div>
     <h2>Invite</h2>
-    <p>Anyone with this link can join and read the room, so send it over a channel you trust. The part after the <span class="mono">#</span> is the key.</p>
-    <div class="linkbox">
-      <input id="inviteLink" readonly>
-      <button id="copyLink" class="primary">Copy</button>
+    <p>Anyone with this link can join, so send it somewhere you trust.</p>
+    <div class="rows">
+      <button class="row" id="shareLink" hidden>
+        <svg><use href="#i-share"/></svg>
+        <span class="grow">Share link<small>Send via any app</small></span>
+      </button>
+      <button class="row" id="copyLink">
+        <svg><use href="#i-copy"/></svg>
+        <span class="grow">Copy link<small>Paste it anywhere</small></span>
+      </button>
     </div>
-    <p style="margin-top:18px">Room code <span class="mono" id="inviteCode"></span> — read it aloud to confirm everyone opened the same link.</p>
-    <div class="row"><button type="button" id="closeInvite">Done</button></div>
+    <input type="text" id="inviteLink" class="selectable mono" readonly style="font-size:13px;margin-top:6px">
+    <div class="actions"><button type="button" class="closes">Done</button></div>
   </div>
 </div>
 
-<!-- Expiry (host only) --------------------------------------------------- -->
-<div class="overlay" id="ttlGate" hidden>
-  <div class="modal">
-    <h2>How long should this room stay open?</h2>
-    <p>Counted from the last message, call, or join. The room and everything in it is destroyed when it expires.</p>
-    <select id="ttlSelect">
-      <option value="5">5 minutes of inactivity</option>
-      <option value="15">15 minutes</option>
-      <option value="30">30 minutes</option>
-      <option value="60">1 hour</option>
-      <option value="180">3 hours</option>
-      <option value="480">8 hours</option>
-      <option value="1440">24 hours</option>
-    </select>
-    <div class="row">
-      <button type="button" id="cancelTtl">Cancel</button>
-      <button type="button" class="primary" id="saveTtl">Save</button>
+<!-- security ------------------------------------------------------------ -->
+<div class="scrim" id="securityGate" hidden>
+  <div class="sheet">
+    <div class="grip"></div>
+    <h2>This room is encrypted</h2>
+    <p>Messages and calls are unreadable to the server. Compare the code below out loud — if it matches for everyone, nobody was slipped a different link.</p>
+    <div class="codebox">
+      <div class="code" id="securityCode">…</div>
+      <small>Room code</small>
     </div>
+    <div class="people-check" id="fingerprints"></div>
+    <div class="actions"><button type="button" class="closes">Done</button></div>
   </div>
 </div>
 
-<!-- Terminal state ------------------------------------------------------- -->
-<div class="overlay" id="deadGate" hidden>
-  <div class="modal">
+<!-- options ------------------------------------------------------------- -->
+<div class="scrim" id="menuGate" hidden>
+  <div class="sheet">
+    <div class="grip"></div>
+    <h2>Room options</h2>
+    <div id="ttlSection" hidden>
+      <p style="margin-bottom:10px">Expires after this much quiet. Messages and calls reset the clock.</p>
+      <div class="segmented" id="ttlSelect" role="group" aria-label="Room lifetime">
+        <button type="button" data-room-ttl="15">15m</button>
+        <button type="button" data-room-ttl="30">30m</button>
+        <button type="button" data-room-ttl="60">1h</button>
+        <button type="button" data-room-ttl="480">8h</button>
+        <button type="button" data-room-ttl="1440">24h</button>
+      </div>
+      <button id="saveTtl" class="btn-primary btn-block" style="margin-top:14px">Save</button>
+    </div>
+    <div class="rows" style="margin-top:14px">
+      <div class="row">
+        <svg><use href="#i-clock"/></svg>
+        <span class="grow">Expires in</span>
+        <span class="val" id="menuExpiry">—</span>
+      </div>
+      <div class="row">
+        <svg><use href="#i-key"/></svg>
+        <span class="grow">Room code</span>
+        <span class="val" id="menuCode">—</span>
+      </div>
+      <button class="row danger" id="leaveRoom">
+        <svg><use href="#i-exit"/></svg>
+        <span class="grow">Leave room</span>
+      </button>
+    </div>
+    <div class="actions"><button type="button" class="closes">Close</button></div>
+  </div>
+</div>
+
+<!-- ended --------------------------------------------------------------- -->
+<div class="scrim" id="deadGate" hidden>
+  <div class="sheet">
+    <div class="grip"></div>
     <h2 id="deadTitle">Room expired</h2>
-    <p id="deadBody">It's gone, along with everything in it. That's the point.</p>
-    <div class="row"><button type="button" class="primary" id="newRoom">Create a new room</button></div>
+    <p id="deadBody">It's gone, and so is everything that was in it.</p>
+    <div class="actions"><button type="button" class="btn-primary" id="newRoom">New room</button></div>
   </div>
 </div>
 
