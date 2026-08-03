@@ -21,7 +21,7 @@ async function render(file, size, { inset = 0 } = {}) {
     <style>
       html,body{margin:0;background:#0b0f13}
       .wrap{width:${size}px;height:${size}px;display:grid;place-items:center;
-            background:linear-gradient(#18202a,#0b0f13)}
+            background:#121820}
       svg{width:${Math.round(size * scale)}px;height:${Math.round(size * scale)}px;
           ${inset ? 'border-radius:0' : ''}}
       ${inset ? '.wrap svg rect:first-of-type{fill:transparent}' : ''}
